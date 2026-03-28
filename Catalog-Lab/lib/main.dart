@@ -26,8 +26,10 @@ class CatalogApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Product Catalog',
-      // PrimarySwatch is a MaterialColor, using orange for the theme
-      theme: ThemeData(primarySwatch: Colors.orange, useMaterial3: false),
+      theme: ThemeData(
+        primarySwatch: Colors.orange,
+        useMaterial3: false, // Matches the look in your slides
+      ),
       home: const CatalogScreen(),
     );
   }
@@ -36,14 +38,9 @@ class CatalogApp extends StatelessWidget {
 class CatalogScreen extends StatelessWidget {
   const CatalogScreen({super.key});
 
-  // Correctly defined the list as a final property of the class
-  final List<Product> products = const [
-    // Note: I added 'const' to the Product objects for better performance
-  ];
-
   @override
   Widget build(BuildContext context) {
-    // Re-defining the list here or ensuring it's accessible
+    // Defining the list inside the build method prevents the "Const class" error
     final List<Product> products = [
       Product(name: 'Coffee Mug', price: '\$12.99', imageUrl: 'https://picsum.photos/id/1/200/200', color: Colors.brown),
       Product(name: 'Notebook', price: '\$5.99', imageUrl: 'https://picsum.photos/id/2/200/200', color: Colors.blue),
@@ -64,46 +61,58 @@ class CatalogScreen extends StatelessWidget {
           itemCount: products.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            childAspectRatio: 0.75,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
+            childAspectRatio: 0.8, // Adjusted ratio to fit text and smaller image
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
           ),
           itemBuilder: (context, index) {
             final product = products[index];
             return Card(
-              clipBehavior: Clip.antiAlias, // Ensures image doesn't bleed past rounded corners
-              color: product.color.withOpacity(0.1),
+              elevation: 2,
+              clipBehavior: Clip.antiAlias,
+              color: product.color.withOpacity(0.05),
               child: InkWell(
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('You selected ${product.name}'),
-                      duration: const Duration(seconds: 1),
+                      content: Text('Selected: ${product.name}'),
+                      duration: const Duration(milliseconds: 500),
                     ),
                   );
                 },
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    // Image Container with Padding to decrease image size
                     Expanded(
-                      child: Image.network(
-                        product.imageUrl,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        // Loading placeholder to prevent errors if internet is slow
-                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image),
+                      flex: 3,
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0), // Makes image smaller
+                        child: Image.network(
+                          product.imageUrl,
+                          fit: BoxFit.contain, // Ensures image isn't cropped
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.broken_image),
+                        ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
+                    // Product Details
+                    Expanded(
+                      flex: 2,
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             product.name,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
-                          Text(product.price),
                           const SizedBox(height: 4),
+                          Text(
+                            product.price,
+                            style: TextStyle(color: Colors.grey[700]),
+                          ),
                         ],
                       ),
                     ),
